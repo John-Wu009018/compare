@@ -4,7 +4,7 @@ import google.generativeai as genai
 # --- 1. 頁面設定 ---
 st.set_page_config(page_title="AI 智慧比對顧問", layout="wide")
 
-# --- 2. 科技感 CSS (加強置中 + 按鈕顏色調整) ---
+# --- 2. 科技感 CSS (登入移到頂部正中 + 輸入框優化) ---
 st.markdown("""
     <style>
     /* 全域字體縮小 */
@@ -22,101 +22,105 @@ st.markdown("""
     
     /* 標題 */
     h1 { color: #38bdf8 !important; font-size: 1.7rem !important; font-weight: 800; }
-    .sub-text { color: #94a3b8; font-size: 0.9rem; margin-bottom: 20px; }
+    .sub-text { color: #94a3b8; font-size: 0.95rem; margin-bottom: 24px; }
     
-    /* 登入容器 - 強制螢幕正中央 */
+    /* 登入容器 - 頂部正中間 */
     .auth-wrapper {
-        height: 100vh;
         display: flex;
-        align-items: center;
         justify-content: center;
-        margin: 0;
-        padding: 0;
+        padding-top: 100px;          /* 控制距離頂部距離，可調整 80px~140px */
+        padding-bottom: 60px;
+        width: 100%;
     }
     .auth-container {
         width: 380px;
-        max-width: 90%;
-        padding: 40px 32px;
-        background: rgba(30, 41, 59, 0.75);
+        max-width: 92%;
+        padding: 36px 32px;
+        background: rgba(30, 41, 59, 0.82);
         border-radius: 16px;
-        border: 1px solid rgba(56, 189, 248, 0.4);
-        box-shadow: 0 15px 40px rgba(0,0,0,0.5);
-        backdrop-filter: blur(8px);
+        border: 1px solid rgba(56, 189, 248, 0.45);
+        box-shadow: 0 12px 40px rgba(0,0,0,0.55);
+        backdrop-filter: blur(10px);
         text-align: center;
     }
     
-    /* 輸入框 */
-    .stTextInput input {
-        background-color: rgba(255, 255, 255, 0.08) !important;
-        color: #ffffff !important;
-        border: 1px solid rgba(56, 189, 248, 0.35) !important;
-        border-radius: 8px !important;
-        padding: 10px 12px !important;
+    /* 優化輸入框 */
+    .stTextInput > div > div > input {
+        background-color: rgba(15, 23, 42, 0.7) !important;
+        color: #f1f5f9 !important;
+        border: 1.5px solid rgba(56, 189, 248, 0.5) !important;
+        border-radius: 10px !important;
+        padding: 14px 16px !important;
+        font-size: 1.05rem !important;
+        height: 52px !important;
+        transition: all 0.2s ease;
+    }
+    .stTextInput > div > div > input:focus {
+        border-color: #38bdf8 !important;
+        box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.35) !important;
+        background-color: rgba(15, 23, 42, 0.9) !important;
+    }
+    .stTextInput > div > div > input::placeholder {
+        color: #64748b !important;
+        opacity: 0.8 !important;
     }
     
-    /* 8格輸入排版 */
-    div[data-testid="stHorizontalBlock"] { gap: 0.6rem !important; }
-    
-    /* 報告區塊 */
-    .report-container {
-        background: rgba(255, 255, 255, 0.04);
-        backdrop-filter: blur(12px);
-        border: 1px solid rgba(255, 255, 255, 0.12);
-        border-radius: 16px;
-        padding: 28px;
-        margin-top: 24px;
-    }
-    
-    /* 按鈕 - 統一改回藍色科技風 */
+    /* 按鈕 */
     .stButton>button, .stFormSubmitButton>button {
         background: linear-gradient(90deg, #0284c7 0%, #38bdf8 100%) !important;
         color: white !important;
         border: none !important;
-        border-radius: 8px !important;
+        border-radius: 10px !important;
         font-weight: 600 !important;
-        padding: 12px !important;
+        padding: 14px !important;
+        font-size: 1.05rem !important;
+        height: 52px !important;
         width: 100% !important;
+        margin-top: 12px !important;
         transition: all 0.2s;
     }
     .stButton>button:hover, .stFormSubmitButton>button:hover {
         background: linear-gradient(90deg, #0369a1 0%, #0ea5e9 100%) !important;
         transform: translateY(-1px);
+        box-shadow: 0 6px 20px rgba(56, 189, 248, 0.3);
     }
+    
+    /* 其他元件間距 */
+    .stForm { gap: 1rem !important; }
     </style>
 """, unsafe_allow_html=True)
 
-# --- 3. 密碼驗證（支援 Enter + 螢幕正中間） ---
+# --- 3. 密碼驗證（頂部置中） ---
 def check_password():
     if "password_correct" not in st.session_state:
         st.session_state["password_correct"] = False
 
     if not st.session_state["password_correct"]:
-        # 使用 wrapper 強制垂直水平置中
         st.markdown('<div class="auth-wrapper">', unsafe_allow_html=True)
         st.markdown("""
             <div class='auth-container'>
                 <h3>🔐 系統登入</h3>
-                <p class='sub-text' style='margin: 12px 0 28px;'>請輸入密碼繼續</p>
+                <p class='sub-text'>請輸入密碼以繼續使用</p>
         """, unsafe_allow_html=True)
 
         with st.form(key="login_form", clear_on_submit=False):
             password = st.text_input(
                 "訪問密碼",
                 type="password",
-                placeholder="輸入密碼...",
+                placeholder="輸入您的訪問密碼...",
                 label_visibility="collapsed"
             )
-            submit = st.form_submit_button("確認登入", use_container_width=True)
+            submit = st.form_submit_button("確認登入")
 
             if submit:
-                if password == "1234":  # ← 請改成你想要的密碼 或使用 st.secrets
+                if password == "1234":  # ← 建議改用 st.secrets["APP_PASSWORD"]
                     st.session_state["password_correct"] = True
                     st.rerun()
                 else:
                     st.error("密碼錯誤，請再試一次。")
 
         st.markdown("</div>", unsafe_allow_html=True)
-        st.markdown('</div>', unsafe_allow_html=True)  # 關閉 wrapper
+        st.markdown('</div>', unsafe_allow_html=True)
         return False
 
     return True
@@ -155,7 +159,7 @@ if check_password():
                     if name.strip():
                         product_names.append(name.strip())
 
-        submitted = st.form_submit_button("✨ 啟動 AI 深度比對分析", use_container_width=True)
+        submitted = st.form_submit_button("✨ 啟動 AI 深度比對分析")
 
         if submitted:
             valid_products = [p for p in product_names if p]
@@ -174,7 +178,7 @@ if check_password():
 
                     try:
                         response = ai_model.generate_content(prompt)
-                        st.markdown('<div class="report-container">', unsafe_allow_html=True)
+                        st.markdown('<div style="background: rgba(30,41,59,0.6); backdrop-filter: blur(10px); border: 1px solid rgba(56,189,248,0.3); border-radius: 16px; padding: 28px; margin: 24px 0;">', unsafe_allow_html=True)
                         st.subheader("📊 分析報告")
                         st.markdown(response.text)
                         st.markdown('</div>', unsafe_allow_html=True)
