@@ -22,16 +22,13 @@ st.markdown("""
     /* ===========================================
        登入頁面 - 頂部置中 + 極致科技質感 
        =========================================== */
-    .auth-wrapper {
-        display: flex;
-        flex-direction: column;
-        justify-content: flex-start;  /* 改為頂部對齊 */
-        align-items: center;
-        min-height: 45vh;  /* 從85vh改為45vh，置中在上方 */
-        padding-top: 12vh;  /* 固定頂部留白 */
-        position: relative;
-        overflow: hidden;
-    }
+.auth-wrapper {
+    ...
+    justify-content: flex-start;
+    min-height: auto;              /* 移除固定高度 */
+    padding-top: 8vh;              /* 只留一點頂部空間 */
+    padding-bottom: 10vh;
+}
 
     /* 登入頁面科技網格背景 + 微粒子效果 */
     .auth-wrapper::before {
@@ -477,6 +474,7 @@ if check_password():
         if st.button("登出系統"):
             st.session_state["password_correct"] = False
             st.rerun()
+
 
 
 
