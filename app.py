@@ -418,7 +418,7 @@ if check_password():
 
     # 頁面標題
     st.title("🛡️ AI 智慧比對顧問")
-    st.markdown("<p class='sub-text'>HIOKI 專業儀器數據橫向分析系統</p>", unsafe_allow_html=True)
+    st.markdown("<p class='sub-text'>HIOKI、FLUKE、FLIR、R&S、RKC、OPTRIS 專業儀器數據分析系統</p>", unsafe_allow_html=True)
 
     st.markdown("#### 📋 待分析型號（至少輸入 2 個）")
 
@@ -473,6 +473,7 @@ if check_password():
         if st.button("登出系統"):
             st.session_state["password_correct"] = False
             st.rerun()
+
 
 
 
