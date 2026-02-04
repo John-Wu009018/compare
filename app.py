@@ -36,7 +36,7 @@ try:
     api_key = st.secrets["GEMINI_API_KEY"]
     genai.configure(api_key=api_key)
     # 預設使用最強大且穩定的 flash 版本
-    ai_model = genai.GenerativeModel('gemini-1.5-flash')
+    ai_model = genai.GenerativeModel('models/gemini-1.5-flash')
 except Exception as e:
     st.error(f"❌ API 設定失敗，請檢查 Secrets。錯誤訊息: {e}")
     ai_model = None
@@ -105,3 +105,4 @@ if st.button("🚀 啟動 AI 深度比對"):
 
 # 頁尾標記
 st.caption("© 2024 AI 儀器顧問系統 | Powered by Google Gemini")
+
