@@ -116,16 +116,23 @@ def check_password():
 # --- 4. 主要程式邏輯 ---
 if check_password():
     # AI 模型配置 (優化 API Key 讀取)
-    try:
-        api_key = st.secrets.get("GEMINI_API_KEY", "")
-        if not api_key:
-            st.error("未偵測到 API Key，請檢查 Secrets 設定。")
-            st.stop()
-        genai.configure(api_key=api_key)
-        ai_model = genai.GenerativeModel('gemini-1.5-flash')
-    except Exception as e:
-        st.error(f"系統初始化失敗: {e}")
+    # --- 修正後的模型配置區塊 ---
+try:
+    api_key = st.secrets.get("GEMINI_API_KEY", "")
+    if not api_key:
+        st.error("未偵測到 API Key")
         st.stop()
+        
+    genai.configure(api_key=api_key)
+    
+    # 修正點：直接使用模型名稱，不加 "models/" 前綴
+    # 並且改用較穩定的 gemini-1.5-flash-latest 或 gemini-pro
+    model_name = 'gemini-1.5-flash' 
+    ai_model = genai.GenerativeModel(model_name)
+    
+except Exception as e:
+    st.error(f"系統初始化失敗: {e}")
+    st.stop()
 
     # 頁面標題
     st.markdown("<h1 class='main-title'>🛡️ AI 智慧比對顧問</h1>", unsafe_allow_html=True)
@@ -189,3 +196,4 @@ if check_password():
         if st.button("登出系統"):
             st.session_state["password_correct"] = False
             st.rerun()
+
