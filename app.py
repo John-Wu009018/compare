@@ -385,7 +385,7 @@ def check_password():
     if not st.session_state["password_correct"]:
         st.markdown("<div class='auth-wrapper'>", unsafe_allow_html=True)
         st.markdown("<div class='auth-container'>", unsafe_allow_html=True)
-        st.markdown("<h2 style='color:#38bdf8; margin-bottom:0;'>HIOKI</h2>", unsafe_allow_html=True)
+        st.markdown("<h2 style='color:#38bdf8; margin-bottom:0;'>AI 儀器智慧比對顧問</h2>", unsafe_allow_html=True)
         st.markdown("<p style='color:#94a3b8; font-size:0.8rem; margin-bottom:30px;'>數據分析系統</p>", unsafe_allow_html=True)
 
         with st.form(key="login_form"):
@@ -473,6 +473,7 @@ if check_password():
         if st.button("登出系統"):
             st.session_state["password_correct"] = False
             st.rerun()
+
 
 
 
