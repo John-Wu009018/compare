@@ -94,7 +94,7 @@ if not st.session_state.authenticated:
     with st.form("login_form"):
         # 直接使用原生組件，確保 100% 可點擊與方便輸入
         pw = st.text_input("ACCESS CODE", type="password", label_visibility="collapsed", placeholder="請輸入密碼")
-        submit = st.form_submit_button("進入系統")
+        submit = st.form_submit_button("　　　　進入系統　　　　")
         
         if submit:
             if pw == "1234":
@@ -147,3 +147,4 @@ st.write("<div style='height:50px'></div>", unsafe_allow_html=True)
 if st.button("安全登出"):
     st.session_state.authenticated = False
     st.rerun()
+
