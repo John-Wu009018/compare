@@ -108,7 +108,6 @@ st.title("🛡️ AI 智慧比對顧問")
 st.markdown("<p style='color: #94a3b8; font-size: 0.9rem;'>專業量測儀器數據分析與選購建議系統</p>", unsafe_allow_html=True)
 
 with st.sidebar:
-    st.image("https://www.hioki.com/themes/hioki/logo.svg", width=120)
     st.markdown("### ⚙️ 系統狀態")
     st.success("AI 連線正常 Gemini-1.5-flash")
     st.divider()
@@ -164,4 +163,5 @@ if st.button("✨ 執行 AI 深度分析"):
 
 # 頁尾
 st.markdown("<br><hr><center style='color: #475569; font-size: 0.8rem;'>AI 智慧比對顧問 | 專業技術參考 | 2026 Powered by Gemini</center>", unsafe_allow_html=True)
+
 
