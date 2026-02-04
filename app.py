@@ -4,147 +4,136 @@ import google.generativeai as genai
 # --- 1. 頁面設定 ---
 st.set_page_config(page_title="AI 智慧比對顧問", layout="wide")
 
-# --- 2. 科技感 CSS (優化版：含流光按鈕動畫) ---
+# --- 2. 科技感 CSS (集中對齊與流光按鈕優化) ---
 st.markdown("""
     <style>
-    /* 全域縮小至約 80% */
+    /* 全域縮小與字體設定 */
     html, body, [class*="css"] { font-size: 13.5px !important; }
     
     .stApp {
         background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
         color: #e2e8f0;
     }
-    
+
     /* 隱藏預設元件 */
     #MainMenu {visibility: hidden;}
     footer {visibility: hidden;}
+
+    /* --- 登入頁面完全置中方案 --- */
+    .auth-wrapper {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 70vh; /* 設定視窗高度比例 */
+        width: 100%;
+    }
     
-    /* 標題與文字 */
-    h1 { color: #38bdf8 !important; font-size: 1.7rem !important; font-weight: 800; text-shadow: 0 0 10px rgba(56, 189, 248, 0.3); }
-    .sub-text { color: #94a3b8; font-size: 0.9rem; margin-bottom: 20px; }
-    
-    /* 登入容器 */
     .auth-container {
-        max-width: 400px;
-        margin: 100px auto;
+        width: 400px;
         padding: 40px;
         background: rgba(30, 41, 59, 0.7);
-        border-radius: 20px;
-        border: 1px solid rgba(56, 189, 248, 0.2);
+        border-radius: 24px;
+        border: 1px solid rgba(56, 189, 248, 0.3);
         text-align: center;
-        box-shadow: 0 20px 50px rgba(0,0,0,0.5);
-        backdrop-filter: blur(10px);
-    }
-    
-    /* 輸入框優化 */
-    .stTextInput input {
-        background-color: rgba(15, 23, 42, 0.6) !important;
-        color: #ffffff !important;
-        border: 1px solid rgba(56, 189, 248, 0.2) !important;
-        border-radius: 10px !important;
-        transition: all 0.3s ease;
-    }
-    .stTextInput input:focus {
-        border-color: #38bdf8 !important;
-        box-shadow: 0 0 10px rgba(56, 189, 248, 0.4) !important;
+        box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+        backdrop-filter: blur(12px);
     }
 
-    /* --- 流光按鈕核心 CSS --- */
+    /* --- 科技藍按鈕：流光與動畫效果 --- */
+    /* 定位所有 Streamlit 按鈕，特別是 Primary 按鈕 */
     div.stButton > button {
-        position: relative;
-        overflow: hidden;
-        background: linear-gradient(90deg, #0284c7, #38bdf8, #0284c7) !important;
+        position: relative !important;
+        background: linear-gradient(90deg, #0369a1 0%, #0ea5e9 50%, #0369a1 100%) !important;
         background-size: 200% auto !important;
         color: white !important;
         border: none !important;
-        padding: 12px 24px !important;
-        border-radius: 10px !important;
+        border-radius: 12px !important;
+        padding: 14px !important;
         font-weight: 700 !important;
-        letter-spacing: 1px;
-        transition: all 0.4s cubic-bezier(0.23, 1, 0.32, 1) !important;
-        box-shadow: 0 4px 15px rgba(2, 132, 199, 0.3);
-        cursor: pointer;
+        font-size: 1rem !important;
+        letter-spacing: 1px !important;
+        transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) !important;
+        overflow: hidden !important;
+        box-shadow: 0 4px 15px rgba(14, 165, 233, 0.4) !important;
     }
 
-    /* 跑馬燈光效果 (流動感) */
+    /* 1. 跑馬燈光流動效果 */
     div.stButton > button:hover {
-        background-position: right center !important; /* 背景滑動 */
-        box-shadow: 0 6px 20px rgba(56, 189, 248, 0.5);
-        transform: translateY(-2px);
+        background-position: right center !important;
+        box-shadow: 0 8px 25px rgba(14, 165, 233, 0.6) !important;
+        transform: translateY(-2px) scale(1.02);
     }
 
-    /* 點選動畫 (縮小回彈) */
+    /* 2. 點選縮放動畫 */
     div.stButton > button:active {
-        transform: scale(0.96);
-        box-shadow: 0 2px 10px rgba(2, 132, 199, 0.2);
+        transform: scale(0.95) !important;
+        transition: 0.1s !important;
     }
 
-    /* 閃光掃描效果 (偽元素) */
-    div.stButton > button::before {
+    /* 3. 內切流光掃描線 */
+    div.stButton > button::after {
         content: "";
         position: absolute;
-        top: 0;
-        left: -100%;
-        width: 100%;
-        height: 100%;
-        background: linear-gradient(
-            120deg,
-            transparent,
-            rgba(255, 255, 255, 0.3),
-            transparent
-        );
-        transition: all 0.6s;
+        top: -50%;
+        left: -60%;
+        width: 20%;
+        height: 200%;
+        background: rgba(255, 255, 255, 0.2);
+        transform: rotate(30deg);
+        transition: none;
     }
 
-    div.stButton > button:hover::before {
-        left: 100%;
+    div.stButton > button:hover::after {
+        left: 120%;
+        transition: all 0.7s ease-in-out;
     }
 
+    /* 輸入框美化 */
+    .stTextInput input {
+        background-color: rgba(15, 23, 42, 0.8) !important;
+        border: 1px solid rgba(56, 189, 248, 0.2) !important;
+        color: white !important;
+        border-radius: 10px !important;
+        text-align: center;
+    }
+    
     /* 報告區塊 */
     .report-container {
-        background: rgba(255, 255, 255, 0.03);
+        background: rgba(255, 255, 255, 0.04);
         border: 1px solid rgba(255, 255, 255, 0.1);
-        border-radius: 16px;
-        padding: 25px;
-        margin-top: 20px;
-        box-shadow: inset 0 0 20px rgba(0,0,0,0.2);
+        border-radius: 20px;
+        padding: 30px;
+        margin-top: 25px;
     }
     </style>
 """, unsafe_allow_html=True)
 
-# --- 3. 密碼驗證邏輯（支援 Enter 鍵） ---
+# --- 3. 密碼驗證邏輯 (結構調整為置中) ---
 def check_password():
     if "password_correct" not in st.session_state:
         st.session_state["password_correct"] = False
 
     if not st.session_state["password_correct"]:
-        st.markdown("""
-            <div class='auth-container'>
-                <h3>🔐 私密訪問控制</h3>
-                <p class='sub-text' style='margin: 10px 0 25px;'>請輸入密碼繼續使用</p>
-        """, unsafe_allow_html=True)
+        # 使用 auth-wrapper 來達成全畫面置中
+        st.markdown("<div class='auth-wrapper'>", unsafe_allow_html=True)
+        st.markdown("<div class='auth-container'>", unsafe_allow_html=True)
+        st.markdown("<h3>🔐 系統安全驗證</h3>", unsafe_allow_html=True)
+        st.markdown("<p class='sub-text'>請輸入訪問代碼以啟動 AI 顧問</p>", unsafe_allow_html=True)
 
-        with st.form(key="login_form", clear_on_submit=False):
-            password = st.text_input(
-                "訪問密碼",
-                type="password",
-                placeholder="輸入密碼...",
-                label_visibility="collapsed"
-            )
-            submit = st.form_submit_button("確認登入", use_container_width=True)
+        with st.form(key="login_form"):
+            password = st.text_input("Password", type="password", placeholder="請輸入密碼", label_visibility="collapsed")
+            submit = st.form_submit_button("進入系統")
 
-            if submit or (st.session_state.get("login_attempted", False) and password):
-                if password == "1234":  # ← 請在此修改為你的真實密碼，或改用 st.secrets
+            if submit:
+                if password == "1234":
                     st.session_state["password_correct"] = True
-                    st.session_state.pop("login_attempted", None)
                     st.rerun()
                 else:
-                    st.error("密碼錯誤，請聯繫管理員。")
-                    st.session_state["login_attempted"] = True
-
+                    st.error("密碼錯誤，請重新輸入")
+        
+        st.markdown("</div>", unsafe_allow_html=True)
         st.markdown("</div>", unsafe_allow_html=True)
         return False
-
     return True
 
 # --- 4. 主程式 ---
@@ -217,3 +206,4 @@ if check_password():
         if st.button("登出系統"):
             st.session_state["password_correct"] = False
             st.rerun()
+
