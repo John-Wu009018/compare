@@ -1,117 +1,145 @@
 import streamlit as st
 import google.generativeai as genai
 
-# --- 1. 頁面設定 ---
-st.set_page_config(page_title="AI 智慧比對顧問", layout="centered")
+# --- 1. 頁面基礎設定 ---
+st.set_page_config(page_title="HIOKI AI 分析顧問", layout="centered")
 
-# --- 2. 精準對齊 CSS ---
+# --- 2. 科技感 UI 注入 (核心重點) ---
 st.markdown("""
     <style>
-    /* 移除所有 Streamlit 內建的空白、Header 與 Footer */
-    [data-testid="stHeader"], [data-testid="stFooter"], [data-testid="stSidebarNav"] {display: none !important;}
-    footer {display: none !important;}
-    header {display: none !important;}
+    /* 強力清除原生組件與空白 */
+    [data-testid="stHeader"], [data-testid="stFooter"], header, footer {display: none !important;}
+    .block-container {padding: 0 !important; max-width: 100% !important;}
     
-    /* 移除底部所有的 Padding */
-    .main .block-container {
-        padding-top: 5rem !important;
-        padding-bottom: 0rem !important;
-        max-width: 450px !important;
-        margin: 0 auto !important;
-    }
-
-    /* 背景與全域字體 */
+    /* 全域背景：深色漸層 */
     .stApp {
-        background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
-        color: #e2e8f0;
+        background: radial-gradient(circle at center, #1e293b 0%, #0f172a 100%);
+        color: #f1f5f9;
+        font-family: 'Inter', sans-serif;
     }
-    html, body, [class*="css"] { font-size: 13px !important; }
 
-    /* 登入框：幾何置中且寬度固定 */
-    .auth-wrapper {
+    /* 登入卡片：幾何置中 */
+    .login-wrapper {
         position: fixed;
         top: 50%;
         left: 50%;
         transform: translate(-50%, -50%);
-        z-index: 9999;
-    }
-    .auth-container {
-        width: 260px; /* 固定寬度 */
-        padding: 25px;
-        background: rgba(255, 255, 255, 0.05);
-        border: 1px solid rgba(56, 189, 248, 0.4);
-        border-radius: 10px;
+        width: 320px;
+        z-index: 10000;
         text-align: center;
     }
-
-    /* 登入按鈕拉長與密碼框對齊 */
-    .auth-container .stButton > button {
-        width: 100% !important; /* 填滿容器寬度 */
-        background: linear-gradient(90deg, #0284c7 0%, #38bdf8 100%);
-        color: white;
-        border: none;
-        border-radius: 5px;
-        height: 38px !important;
-        font-weight: 600;
-        margin-top: 10px;
+    
+    .login-card {
+        background: rgba(255, 255, 255, 0.03);
+        backdrop-filter: blur(20px);
+        border: 1px solid rgba(56, 189, 248, 0.3);
+        border-radius: 16px;
+        padding: 40px 30px;
+        box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
     }
 
-    /* 輸入框置中對齊 */
-    .stTextInput input {
-        background-color: rgba(255, 255, 255, 0.05) !important;
+    .login-card h2 {
+        color: #38bdf8;
+        font-size: 1.5rem;
+        font-weight: 700;
+        margin-bottom: 8px;
+        letter-spacing: 1px;
+    }
+
+    .login-card p {
+        color: #94a3b8;
+        font-size: 0.8rem;
+        margin-bottom: 25px;
+    }
+
+    /* 修正輸入框與按鈕的寬度與對齊 */
+    .stTextInput > div > div > input {
+        background: rgba(15, 23, 42, 0.5) !important;
         border: 1px solid rgba(56, 189, 248, 0.2) !important;
         color: white !important;
-        height: 35px !important;
+        border-radius: 8px !important;
+        height: 42px !important;
         text-align: center !important;
+        transition: 0.3s;
+    }
+    
+    .stTextInput > div > div > input:focus {
+        border-color: #38bdf8 !important;
+        box-shadow: 0 0 10px rgba(56, 189, 248, 0.3) !important;
     }
 
-    /* 移除下方奇怪的空框與線條 */
-    div[data-testid="stVerticalBlock"] > div { margin-bottom: 0px !important; padding-bottom: 0px !important; }
-    iframe { display: none; } /* 隱藏可能的後台隱形元件 */
-    
-    /* 報告顯示區 */
-    .report-container {
-        background: rgba(255, 255, 255, 0.03);
-        border: 1px solid rgba(255, 255, 255, 0.1);
-        border-radius: 8px;
-        padding: 15px;
-        margin-top: 20px;
+    .stButton > button {
+        width: 100% !important;
+        background: linear-gradient(135deg, #0284c7 0%, #38bdf8 100%) !important;
+        color: white !important;
+        border: none !important;
+        border-radius: 8px !important;
+        height: 42px !important;
+        font-weight: 600 !important;
+        margin-top: 15px !important;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        box-shadow: 0 4px 15px rgba(2, 132, 199, 0.4);
     }
+
+    /* 分析主介面：集中式卡片 */
+    .main-grid {
+        max-width: 500px;
+        margin: 80px auto;
+        background: rgba(255, 255, 255, 0.02);
+        padding: 30px;
+        border-radius: 20px;
+        border: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    /* 徹底移除下方不知道什麼作用的框框 (Streamlit Gap) */
+    div[data-testid="stVerticalBlock"] > div:empty { display: none !important; height: 0 !important; margin: 0 !important; padding: 0 !important;}
     </style>
     """, unsafe_allow_html=True)
 
-# --- 3. 登入邏輯 ---
-if "auth" not in st.session_state:
-    st.session_state.auth = False
+# --- 3. 登入邏輯 (具有質感的卡片佈局) ---
+if "authenticated" not in st.session_state:
+    st.session_state.authenticated = False
 
-if not st.session_state.auth:
-    # 確保登入時背景乾淨
-    st.markdown("<div class='auth-wrapper'>", unsafe_allow_html=True)
-    st.markdown("<div class='auth-container'>", unsafe_allow_html=True)
-    st.markdown("<h3 style='margin-top:0;'>🔐 系統登入</h3>", unsafe_allow_html=True)
-    pwd = st.text_input("PWD", type="password", label_visibility="collapsed", placeholder="請輸入密碼")
-    if st.button("登入系統"):
-        if pwd == "1234": # 密碼設定
-            st.session_state.auth = True
-            st.rerun()
-        else:
-            st.error("密碼錯誤")
-    st.markdown("</div></div>", unsafe_allow_html=True)
+if not st.session_state.authenticated:
+    st.markdown("""
+        <div class="login-wrapper">
+            <div class="login-card">
+                <h2>SYSTEM ACCESS</h2>
+                <p>請輸入授權碼以啟動 AI 分析顧問</p>
+            </div>
+        </div>
+    """, unsafe_allow_html=True)
+    
+    # 將輸入框與按鈕放在 wrapper 裡面
+    with st.container():
+        # 為了置中對齊，我們在卡片內部使用空位來精準定位
+        col1, col2, col3 = st.columns([1, 2, 1])
+        with col2:
+            st.write("<div style='height:215px'></div>", unsafe_allow_html=True) # 調整這裡讓輸入框對齊卡片內
+            pw = st.text_input("PASSWORD", type="password", label_visibility="collapsed", placeholder="ACCESS CODE")
+            if st.button("AUTHENTICATE"):
+                if pw == "1234":
+                    st.session_state.authenticated = True
+                    st.rerun()
+                else:
+                    st.error("Access Denied")
     st.stop()
 
-# --- 4. 主程式介面 ---
+# --- 4. 登入後的分析介面 ---
 
 # AI 模型連線
 try:
     genai.configure(api_key=st.secrets["GEMINI_API_KEY"])
     model = genai.GenerativeModel('gemini-1.5-flash')
 except:
-    st.error("API 密鑰無效")
+    st.error("API 連線異常")
     st.stop()
 
-# 置中標題
-st.markdown("<h2 style='text-align:center; color:#38bdf8; margin-bottom:0;'>AI 智慧比對顧問</h2>", unsafe_allow_html=True)
-st.markdown("<p style='text-align:center; color:#94a3b8; font-size:11px; margin-bottom:20px;'>HIOKI 專業量測儀器數據分析</p>", unsafe_allow_html=True)
+# 主介面容器
+st.markdown("<div class='main-grid'>", unsafe_allow_html=True)
+st.markdown("<h2 style='text-align:center; color:#38bdf8;'>AI 比對顧問</h2>", unsafe_allow_html=True)
+st.markdown("<p style='text-align:center; color:#94a3b8; font-size:12px;'>請輸入 HIOKI 型號進行交叉分析</p>", unsafe_allow_html=True)
 
 # 8 格輸入框
 names = []
@@ -122,24 +150,25 @@ for i in range(2):
             n = st.text_input("", key=f"v{i*4+j}", label_visibility="collapsed", placeholder=f"#{i*4+j+1}")
             names.append(n)
 
-st.markdown("<div style='margin-top:10px;'></div>", unsafe_allow_html=True)
+st.write("<div style='height:15px'></div>", unsafe_allow_html=True)
 
-if st.button("✨ 啟動深度分析"):
+if st.button("🚀 執行智能比對分析"):
     valid = [x.strip() for x in names if x.strip()]
     if len(valid) < 2:
-        st.warning("請填寫至少兩個型號")
+        st.warning("請至少輸入兩個型號")
     else:
-        with st.spinner('AI 正在分析中...'):
+        with st.spinner('📡 數據同步與分析中...'):
             try:
-                res = model.generate_content(f"精密儀器專家比對：{', '.join(valid)}。含表格、差異分析、選購建議。繁體中文。")
-                st.markdown('<div class="report-container">', unsafe_allow_html=True)
+                res = model.generate_content(f"精密儀器專家比對：{', '.join(valid)}。請提供詳細表格與選購核心建議。繁體中文。")
+                st.markdown("<div style='background:rgba(255,255,255,0.05); padding:20px; border-radius:10px; margin-top:20px;'>", unsafe_allow_html=True)
                 st.markdown(res.text)
-                st.markdown('</div>', unsafe_allow_html=True)
+                st.markdown("</div>", unsafe_allow_html=True)
             except:
-                st.error("分析過程發生錯誤")
+                st.error("分析失敗")
 
-# 登出小按鈕
-st.markdown("<br><br>", unsafe_allow_html=True)
-if st.button("登出", use_container_width=False):
-    st.session_state.auth = False
+# 登出按鈕
+st.write("<div style='height:30px'></div>", unsafe_allow_html=True)
+if st.button("LOGOUT"):
+    st.session_state.authenticated = False
     st.rerun()
+st.markdown("</div>", unsafe_allow_html=True)
