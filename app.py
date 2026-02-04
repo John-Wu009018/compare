@@ -72,7 +72,7 @@ def check_password():
         password = st.text_input("請輸入訪問密碼", type="password")
         if st.button("確認登入"):
             # 在此修改您的密碼
-            if password == "1234": 
+            if password == "149131313": 
                 st.session_state["password_correct"] = True
                 st.rerun()
             else:
@@ -137,3 +137,4 @@ if check_password():
         if st.button("登出系統"):
             st.session_state["password_correct"] = False
             st.rerun()
+
