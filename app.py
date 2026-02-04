@@ -4,95 +4,188 @@ import google.generativeai as genai
 # --- 1. 頁面設定 ---
 st.set_page_config(page_title="AI 智慧比對顧問", layout="wide", page_icon="🛡️")
 
-# --- 2. 科技感 CSS (確保排版對齊) ---
+# --- 2. 科技感 CSS (優化對齊與視覺) ---
 st.markdown("""
     <style>
-    .stApp { background: radial-gradient(circle at 50% 50%, #1e293b 0%, #0f172a 100%); color: #e2e8f0; }
-    .main-title { background: linear-gradient(90deg, #38bdf8, #818cf8); -webkit-background-clip: text; -webkit-text-fill-color: transparent; font-size: 2.2rem !important; font-weight: 800; text-align: center; }
-    .auth-container { max-width: 400px; margin: 80px auto; padding: 40px; background: rgba(255, 255, 255, 0.05); backdrop-filter: blur(15px); border: 1px solid rgba(56, 189, 248, 0.3); border-radius: 20px; text-align: center; }
-    .report-container { background: rgba(15, 23, 42, 0.5); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 15px; padding: 25px; margin-top: 20px; }
-    div[data-testid="stFormSubmitButton"]>button { background: linear-gradient(90deg, #0284c7 0%, #38bdf8 100%) !important; color: white !important; border: none !important; width: 100%; height: 45px; border-radius: 8px; }
+    /* 全域字體與背景 */
+    html, body, [class*="css"] { font-size: 14px !important; font-family: 'Inter', -apple-system, sans-serif; }
+    
+    .stApp {
+        background: radial-gradient(circle at top right, #1e293b, #0f172a);
+        color: #e2e8f0;
+    }
+
+    /* 隱藏預設元件 */
+    #MainMenu {visibility: hidden;}
+    footer {visibility: hidden;}
+
+    /* 標題樣式 */
+    .main-title {
+        background: linear-gradient(90deg, #38bdf8, #818cf8);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        font-size: 2.5rem !important;
+        font-weight: 800;
+        text-align: center;
+        margin-bottom: 0.5rem;
+    }
+    .sub-text { color: #94a3b8; text-align: center; font-size: 1rem; margin-bottom: 2rem; }
+
+    /* 登入容器優化 */
+    .auth-outer {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        padding-top: 10vh;
+    }
+    .auth-container {
+        width: 400px;
+        padding: 40px;
+        background: rgba(30, 41, 59, 0.7);
+        backdrop-filter: blur(20px);
+        border-radius: 24px;
+        border: 1px solid rgba(56, 189, 248, 0.3);
+        box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+        text-align: center;
+    }
+
+    /* 輸入框樣式優化 */
+    .stTextInput input {
+        background-color: rgba(15, 23, 42, 0.6) !important;
+        color: #ffffff !important;
+        border: 1px solid rgba(56, 189, 248, 0.2) !important;
+        border-radius: 12px !important;
+        padding: 12px !important;
+        transition: all 0.3s ease;
+    }
+    .stTextInput input:focus {
+        border-color: #38bdf8 !important;
+        box-shadow: 0 0 10px rgba(56, 189, 248, 0.4) !important;
+    }
+
+    /* 報告區塊玻璃擬態 */
+    .report-container {
+        background: rgba(255, 255, 255, 0.03);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 20px;
+        padding: 30px;
+        margin-top: 20px;
+    }
+
+    /* 按鈕樣式 (Form Submit Button) */
+    .stButton>button, div[data-testid="stFormSubmitButton"]>button {
+        background: linear-gradient(90deg, #0284c7 0%, #38bdf8 100%) !important;
+        color: white !important;
+        border: none !important;
+        border-radius: 12px !important;
+        font-weight: 600 !important;
+        height: 45px;
+        width: 100%;
+        transition: transform 0.2s;
+    }
+    .stButton>button:hover { transform: translateY(-2px); box-shadow: 0 10px 15px -3px rgba(56, 189, 248, 0.4); }
     </style>
     """, unsafe_allow_html=True)
 
-# --- 3. 密碼驗證 ---
+# --- 3. 密碼驗證邏輯 (視覺優化) ---
 def check_password():
     if "password_correct" not in st.session_state:
         st.session_state["password_correct"] = False
+
     if not st.session_state["password_correct"]:
-        st.markdown("<div class='auth-container'>", unsafe_allow_html=True)
-        st.markdown("### 🔐 智慧顧問存取")
-        with st.form("login_gate"):
-            password = st.text_input("輸入密碼", type="password")
-            if st.form_submit_button("登入"):
-                if password == "1234":
-                    st.session_state["password_correct"] = True
-                    st.rerun()
-                else:
-                    st.error("密碼錯誤")
-        st.markdown("</div>", unsafe_allow_html=True)
+        # 使用空的 container 來置中
+        _, center_col, _ = st.columns([1, 2, 1])
+        with center_col:
+            st.markdown("<div class='auth-outer'>", unsafe_allow_html=True)
+            with st.form("login_form"):
+                st.markdown("### 🔐 私密訪問控制")
+                st.markdown("<p style='color:#94a3b8;'>請輸入授權密碼以開啟分析系統</p>", unsafe_allow_html=True)
+                password = st.text_input("密碼", type="password", label_visibility="collapsed", placeholder="請輸入密碼")
+                submit = st.form_submit_button("確認登入")
+                if submit:
+                    if password == "1234": 
+                        st.session_state["password_correct"] = True
+                        st.rerun()
+                    else:
+                        st.error("❌ 密碼錯誤，請聯繫管理員。")
+            st.markdown("</div>", unsafe_allow_html=True)
         return False
     return True
 
-# --- 4. 主要邏輯 ---
+# --- 4. 主要程式邏輯 ---
 if check_password():
-    # 修正 404：嘗試多種可能的模型名稱名稱格式
+    # AI 模型配置 (優化 API Key 讀取)
     try:
-        api_key = st.secrets["GEMINI_API_KEY"]
+        api_key = st.secrets.get("GEMINI_API_KEY", "")
+        if not api_key:
+            st.error("未偵測到 API Key，請檢查 Secrets 設定。")
+            st.stop()
         genai.configure(api_key=api_key)
-        
-        # 這裡不直接初始化模型，等按下按鈕再初始化，增加彈性
+        ai_model = genai.GenerativeModel('gemini-1.5-flash')
     except Exception as e:
-        st.error(f"API 設定錯誤: {e}")
+        st.error(f"系統初始化失敗: {e}")
         st.stop()
 
+    # 頁面標題
     st.markdown("<h1 class='main-title'>🛡️ AI 智慧比對顧問</h1>", unsafe_allow_html=True)
-    st.markdown("<p style='text-align:center; color:#94a3b8;'>HIOKI 專業儀器數據橫向分析系統</p>", unsafe_allow_html=True)
+    st.markdown("<p class='sub-text'>HIOKI 專業儀器數據橫向分析系統</p>", unsafe_allow_html=True)
 
-    with st.form("analysis_form"):
+    # 使用 st.form 包裹輸入框，達到「按 Enter 執行」的功能
+    with st.form("analysis_form", clear_on_submit=False):
         st.markdown("#### 📋 待分析型號 (輸入後按 Enter 即可啟動)")
+        
         product_names = []
+        # 建立 2x4 的網格
         for r in range(2):
             cols = st.columns(4)
             for c in range(4):
                 idx = r * 4 + c
-                product_names.append(cols[c].text_input("", placeholder=f"型號 {idx+1}", key=f"p{idx}", label_visibility="collapsed"))
+                with cols[c]:
+                    name = st.text_input(
+                        f"P{idx}", 
+                        placeholder=f"型號 {idx+1}", 
+                        key=f"p{idx}", 
+                        label_visibility="collapsed"
+                    )
+                    product_names.append(name)
         
-        submit_btn = st.form_submit_button("✨ 啟動 AI 深度比對分析")
+        st.markdown("<br>", unsafe_allow_html=True)
+        
+        # 表單提交按鈕
+        submit_button = st.form_submit_button("✨ 啟動 AI 深度比對分析")
 
-    if submit_btn:
+    # 按鈕觸發後的執行邏輯
+    if submit_button:
         valid_list = [n.strip() for n in product_names if n.strip() != ""]
         if len(valid_list) < 2:
-            st.warning("⚠️ 請輸入至少兩個型號。")
+            st.warning("⚠️ 請輸入至少兩個型號進行比對。")
         else:
-            with st.spinner('🔍 正在嘗試連線至最佳分析模型...'):
-                # 嘗試模型列表 (由新到舊)
-                models_to_try = ['gemini-1.5-flash', 'gemini-1.5-flash-latest', 'gemini-pro']
-                response = None
-                error_msg = ""
+            with st.spinner('🔍 正在檢索全球數據並分析中...'):
+                prompt = f"""你是一位精密儀器專家，特別精通 HIOKI (日置) 等品牌的測量儀器。
+                請詳細比對以下型號：{', '.join(valid_list)}。
                 
-                for m_name in models_to_try:
-                    try:
-                        model = genai.GenerativeModel(m_name)
-                        prompt = f"你是一位精密儀器專家。請詳細比對：{', '.join(valid_list)}。請製作規格對照表、分析技術差異、並給予選購建議。請用繁體中文回答。"
-                        response = model.generate_content(prompt)
-                        if response: break # 成功就跳出迴圈
-                    except Exception as e:
-                        error_msg = str(e)
-                        continue # 失敗就試下一個
+                輸出要求：
+                1. 製作一個規格對照 Markdown 表格。
+                2. 分析各型號間的核心技術差異。
+                3. 根據不同的應用場景給予選購建議。
+                4. 請使用繁體中文。"""
                 
-                if response:
+                try:
+                    response = ai_model.generate_content(prompt)
                     st.markdown('<div class="report-container">', unsafe_allow_html=True)
                     st.subheader("📊 分析報告")
                     st.markdown(response.text)
                     st.markdown('</div>', unsafe_allow_html=True)
-                    st.success(f"分析完成 (由 {m_name} 驅動)")
-                else:
-                    st.error(f"分析失敗。請確認 API Key 是否有效。最後一個錯誤訊息：{error_msg}")
+                    st.success("分析完成！")
+                except Exception as e:
+                    st.error(f"分析失敗：{e}")
 
+    # 側邊欄狀態
     with st.sidebar:
         st.markdown("### ⚙️ 系統狀態")
-        st.success("🔒 安全加密連線")
+        st.info(f"Model: `Gemini 1.5 Flash`")
+        st.success("🔒 安全連線中")
         if st.button("登出系統"):
             st.session_state["password_correct"] = False
             st.rerun()
