@@ -109,7 +109,7 @@ st.markdown("""
     }
 
     .auth-container h2::after {
-        content: "HIOKI";
+        content: "AI 儀器智慧比對顧問";
         position: absolute;
         top: 2px; left: 2px;
         color: rgba(14,165,233,0.3);
@@ -473,6 +473,7 @@ if check_password():
         if st.button("登出系統"):
             st.session_state["password_correct"] = False
             st.rerun()
+
 
 
 
