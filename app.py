@@ -42,7 +42,7 @@ st.markdown("""
     """, unsafe_allow_html=True)
 
 # 2. AI 模型設定
-GEMINI_API_KEY = "AIzaSyDqe2MZSucHCnRhumslFC2ZKxTgTcJtpgs"
+genai.configure(api_key=st.secrets["GEMINI_API_KEY"])
 
 def get_best_model():
     try:
@@ -132,4 +132,5 @@ if st.button("🚀 啟動 AI 深度比對"):
                     components.html(screenshot_html, height=150)
                     
                 except Exception as e:
+
                     st.error(f"分析失敗：{e}")
