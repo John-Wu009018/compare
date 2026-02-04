@@ -30,15 +30,32 @@ st.markdown("""
     </style>
     """, unsafe_allow_html=True)
 
-# --- 2. AI 模型設定 (修正金鑰讀取) ---
+# --- 2. AI 模型設定 (自動偵測可用模型版) ---
 try:
-    # 直接從 Streamlit Secrets 讀取
     api_key = st.secrets["GEMINI_API_KEY"]
     genai.configure(api_key=api_key)
-    # 預設使用最強大且穩定的 flash 版本
-    ai_model = genai.GenerativeModel('gemini-pro')
+    
+    # 自動尋找目前帳號支援的模型
+    available_models = [m.name for m in genai.list_models() if 'generateContent' in m.supported_generation_methods]
+    
+    # 優先順序：1.5-flash > 1.5-pro > gemini-pro > 第一個可用的
+    if 'models/gemini-1.5-flash' in available_models:
+        model_name = 'models/gemini-1.5-flash'
+    elif 'models/gemini-1.5-pro' in available_models:
+        model_name = 'models/gemini-1.5-pro'
+    elif 'models/gemini-pro' in available_models:
+        model_name = 'models/gemini-pro'
+    else:
+        model_name = available_models[0] if available_models else None
+        
+    if model_name:
+        ai_model = genai.GenerativeModel(model_name)
+    else:
+        st.error("❌ 您的 API 金鑰目前不支援任何生成模型。")
+        ai_model = None
+        
 except Exception as e:
-    st.error(f"❌ API 設定失敗，請檢查 Secrets。錯誤訊息: {e}")
+    st.error(f"❌ AI 初始化失敗：{e}")
     ai_model = None
 
 # --- 3. 介面佈局 ---
@@ -105,5 +122,6 @@ if st.button("🚀 啟動 AI 深度比對"):
 
 # 頁尾標記
 st.caption("© 2024 AI 儀器顧問系統 | Powered by Google Gemini")
+
 
 
