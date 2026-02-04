@@ -26,7 +26,6 @@ st.markdown("""
     ...
     justify-content: flex-start;
     min-height: auto;              /* 移除固定高度 */
-    padding-top: 8vh;              /* 只留一點頂部空間 */
     padding-bottom: 10vh;
 }
 
@@ -474,6 +473,7 @@ if check_password():
         if st.button("登出系統"):
             st.session_state["password_correct"] = False
             st.rerun()
+
 
 
 
