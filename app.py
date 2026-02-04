@@ -393,7 +393,7 @@ def check_password():
             submit = st.form_submit_button("進入系統") # 此按鈕會自動套用上面的藍色流動效果
 
             if submit:
-                if password == "1234":
+                if password == "aaaaaaaa":
                     st.session_state["password_correct"] = True
                     st.rerun()
                 else:
@@ -473,6 +473,7 @@ if check_password():
         if st.button("登出系統"):
             st.session_state["password_correct"] = False
             st.rerun()
+
 
 
 
